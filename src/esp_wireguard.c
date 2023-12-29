@@ -109,7 +109,7 @@ static esp_err_t esp_wireguard_peer_init(const wireguard_config_t *config, struc
     }
 
     /* resolve peer name or IP address */
-    {
+    if (!derp_is_endpoint_derp(config)) {
         ip_addr_t endpoint_ip;
         memset(&endpoint_ip, 0, sizeof(endpoint_ip));
 
@@ -131,9 +131,9 @@ static esp_err_t esp_wireguard_peer_init(const wireguard_config_t *config, struc
             inet6_addr_to_ip6addr(ip_2_ip6(&endpoint_ip), &addr6);
 #endif
         }
-        peer->endpoint_ip = endpoint_ip;
+        peer->endpoint.ip_endpoint.endpoint_ip = endpoint_ip;
 
-        if (inet_ntop(res->ai_family, &(peer->endpoint_ip), addr_str, WG_ADDRSTRLEN) == NULL) {
+        if (inet_ntop(res->ai_family, &(peer->endpoint.ip_endpoint.endpoint_ip ), addr_str, WG_ADDRSTRLEN) == NULL) {
             ESP_LOGW(TAG, "inet_ntop: %i", errno);
         } else {
             ESP_LOGI(TAG, "Peer: %s (%s:%i)",
@@ -141,8 +141,18 @@ static esp_err_t esp_wireguard_peer_init(const wireguard_config_t *config, struc
                                             addr_str,
                                             config->port);
         }
+
+        peer->endpoint.ip_endpoint.endport_port = config->port;
+    } else {
+        /* DERP is the endpoint */
+        peer->endpoint.derp_endpoint.queue = derp_get_queue(config->derp_config);
+        if (peer->endpoint.derp_endpoint.queue == NULL) {
+            ESP_LOGE(TAG, "derp_get_queue: failed");
+            err = ESP_FAIL;
+            goto fail;
+        }
     }
-    peer->endport_port = config->port;
+    
     peer->keep_alive = config->persistent_keepalive;
     err = ESP_OK;
 fail:
@@ -210,6 +220,18 @@ esp_err_t esp_wireguard_init(wireguard_config_t *config, wireguard_ctx_t *ctx)
     if (!config || !ctx) {
         err = ESP_ERR_INVALID_ARG;
         goto fail;
+    }
+
+    if (config->derp_config != NULL) {
+        ESP_LOGI(TAG, "DERP enabled");
+        err = derp_init(config->derp_config, ctx->derp_ctx);
+
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "derp_init: %s", esp_err_to_name(err));
+            goto fail;
+        }
+    } else {
+        ESP_LOGI(TAG, "DERP disabled");
     }
 
     err = wireguard_platform_init();

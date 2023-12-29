@@ -39,6 +39,8 @@ extern "C" {
 #include <esp_err.h>
 #include <lwip/netif.h>
 
+#include "derp.h"
+
 #define ESP_WIREGUARD_CONFIG_DEFAULT() { \
     .private_key = NULL, \
     .listen_port = 0, \
@@ -50,6 +52,7 @@ extern "C" {
     .endpoint = NULL, \
     .port = 51820, \
     .persistent_keepalive = 0, \
+    .derp_config = NULL, \
 }
 
 typedef struct {
@@ -68,10 +71,12 @@ typedef struct {
                                              authenticated empty packet to the peer for the purpose of keeping a stateful
                                              firewall or NAT mapping valid persistently. Set zero to disable the feature.
                                              Default is zero. */
+    derp_config_t* derp_config;         /**< a pointer to derp config */
 } wireguard_config_t;
 
 typedef struct {
     wireguard_config_t* config;        /**< a pointer to wireguard config */
+    derp_ctx_t*         derp_ctx;      /**< a pointer to derp context */
     struct netif*       netif;         /**< a pointer to configured netif */
     struct netif*       netif_default; /**< a pointer to the default netif. */
 } wireguard_ctx_t;

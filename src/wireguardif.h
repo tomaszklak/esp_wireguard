@@ -42,10 +42,14 @@ extern "C" {
 #include "lwip/netif.h"
 #include "lwip/ip_addr.h"
 
+#include "derp.h"
+
 // Default MTU for WireGuard is 1420 bytes
 #define WIREGUARDIF_MTU (1420)
 
 #define WIREGUARDIF_DEFAULT_PORT		(51820)
+
+
 
 struct wireguardif_init_data {
 	// Required: the private key of this WireGuard network interface
@@ -68,8 +72,7 @@ struct wireguardif_peer {
 	ip_addr_t allowed_mask;
 
 	// End-point details (may be blank)
-	ip_addr_t endpoint_ip;
-	u16_t endport_port;
+	universal_endpoint endpoint;
 	u16_t keep_alive;
 };
 

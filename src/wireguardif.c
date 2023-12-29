@@ -92,9 +92,11 @@ static err_t wireguardif_peer_output(struct netif *netif, struct pbuf *q, struct
 	// Send to last know port, not the connect port
 	//TODO: Support DSCP and ECN - lwip requires this set on PCB globally, not per packet
 	return udp_sendto_if(device->udp_pcb, q, &peer->ip, peer->port, device->underlying_netif);
+	// TODO support DERP here
 }
 
 static err_t wireguardif_device_output(struct wireguard_device *device, struct pbuf *q, const ip_addr_t *ipaddr, u16_t port) {
+	// TODO support DERP here
 	return udp_sendto_if(device->udp_pcb, q, ipaddr, port, device->underlying_netif);
 }
 
@@ -707,6 +709,7 @@ err_t wireguardif_peer_is_up(struct netif *netif, u8_t peer_index, ip_addr_t *cu
 		} else {
 			result = ERR_CONN;
 		}
+		// TODO support DERP here
 		if (current_ip) {
 			*current_ip = peer->ip;
 		}
@@ -901,6 +904,7 @@ err_t wireguardif_init(struct netif *netif) {
 	uint8_t private_key[WIREGUARD_PRIVATE_KEY_LEN];
 	size_t private_key_len = sizeof(private_key);
 
+// TODO support DERP here
 #if defined(CONFIG_WIREGUARD_ESP_NETIF)
 	struct netif* underlying_netif = NULL;
 	char lwip_netif_name[8] = {0,};
@@ -953,6 +957,7 @@ err_t wireguardif_init(struct netif *netif) {
 					device = (struct wireguard_device *)mem_calloc(1, sizeof(struct wireguard_device));
 					if (device) {
 						device->netif = netif;
+						// TODO support DERP here
 						device->underlying_netif = underlying_netif;
 						udp_bind_netif(udp, underlying_netif);
 
@@ -976,7 +981,7 @@ err_t wireguardif_init(struct netif *netif) {
 							// We set up no state flags here - caller should set them
 							// NETIF_FLAG_LINK_UP is automatically set/cleared when at least one peer is connected
 							netif->flags = 0;
-
+							// TODO support DERP here
 							udp_recv(udp, wireguardif_network_rx, device);
 
 							// Start a periodic timer for this wireguard device

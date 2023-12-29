@@ -51,6 +51,8 @@ extern "C" {
 // Platform-specific functions that need to be implemented per-platform
 #include "wireguard-platform.h"
 
+#include "derp.h"
+
 // tai64n contains 64-bit seconds and 32-bit nano offset (12 bytes)
 #define WIREGUARD_TAI64N_LEN		(12)
 // Auth algorithm is chacha20pol1305 which is 128bit (16 byte) authenticator
@@ -120,11 +122,9 @@ struct wireguard_peer {
 	bool active; // Should we be actively trying to connect?
 
 	// This is the configured IP of the peer (endpoint)
-	ip_addr_t connect_ip;
-	u16_t connect_port;
+	universal_endpoint connect_endpoint;
 	// This is the latest received IP/port
-	ip_addr_t ip;
-	u16_t port;
+	universal_endpoint endpoint;
 	// keep-alive interval in seconds, 0 is disable
 	uint16_t keepalive_interval;
 
