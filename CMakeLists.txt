@@ -10,6 +10,7 @@ idf_component_register(
          "src/crypto/refc/x25519.c"
          "src/esp_wireguard.c"
          "src/nacl/crypto_scalarmult/curve25519/ref/smult.c"
+         "src/derp.c"
     INCLUDE_DIRS "include"
     PRIV_INCLUDE_DIRS "src"
     REQUIRES esp_netif lwip mbedtls esp-tls)
