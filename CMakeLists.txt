@@ -13,6 +13,7 @@ idf_component_register(
          "src/derp.c"
     INCLUDE_DIRS "include"
     PRIV_INCLUDE_DIRS "src"
+    PRIV_REQUIRES espressif__libsodium
     REQUIRES esp_netif lwip mbedtls esp-tls)
 
 if(${IDF_VERSION_MAJOR} STREQUAL 5)
