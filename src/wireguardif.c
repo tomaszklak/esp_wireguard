@@ -55,7 +55,7 @@
 #include "wireguard.h"
 #include "crypto.h"
 
-#include "derp.h"
+// #include "derp.h"
 
 #define WIREGUARDIF_TIMER_MSECS 400
 
@@ -96,7 +96,8 @@ static err_t wireguardif_peer_output(struct netif *netif, struct pbuf *q, struct
 	// return udp_sendto_if(device->udp_pcb, q, &peer->ip, peer->port, device->underlying_netif);
 
 	// Send via DERP
-	return derp_send_packet(device, peer, q);
+	// return derp_send_packet(device, peer, q);
+	return udp_sendto_if(device->udp_pcb, q, &peer->ip, peer->port, device->underlying_netif);
 }
 
 static err_t wireguardif_device_output(struct wireguard_device *device, struct pbuf *q, const ip_addr_t *ipaddr, u16_t port) {
@@ -861,7 +862,7 @@ static void wireguardif_tmr(void *arg) {
 	// Reschedule this timer
 	sys_timeout(WIREGUARDIF_TIMER_MSECS, wireguardif_tmr, device);
 
-	derp_tick(device);
+	// derp_tick(device);
 
 	// Check periodic things
 	bool link_up = false;
